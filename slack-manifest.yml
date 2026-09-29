@@ -1,7 +1,7 @@
 display_information:
   name: Stickers
   description: Send your workspace's custom emoji as big stickers
-  long_description: "Custom emoji look tiny in a conversation. Stickers posts them as large images instead, the same way GIFs show up. Type /sticker followed by part of an emoji name, for example /sticker party. You get a private preview that only you can see. Browse other matches with Next match, then press Send to post the sticker to the channel. Run /sticker with no name for a random pick, or /sticker help for usage tips. Stickers only reads the list of custom emoji. It does not read messages and does not need to join channels."
+  long_description: "Custom emoji look tiny in a conversation. Stickers posts them as large images instead, the same way GIFs show up. Run /sticker to open a picker with every custom emoji in the workspace, search it, and send the one you want. If you know the name, type /sticker followed by part of it, for example /sticker party. Small typos are fine. You always see a private preview first, and nothing is posted until you press Send. Stickers only reads the list of custom emoji. It does not read messages and does not need to join channels."
   background_color: "#4a154b"
 features:
   bot_user:
@@ -11,7 +11,7 @@ features:
     - command: /sticker
       url: https://your-app.vercel.app/api/slack/command
       description: Post a custom emoji as a big sticker
-      usage_hint: "[emoji name] or help"
+      usage_hint: "[emoji name], random, or help"
       should_escape: false
 oauth_config:
   scopes:

@@ -6,33 +6,39 @@ Custom emoji are tiny in a conversation, even when you send one on its own. This
 
 ## Usage
 
+Run `/sticker` on its own to open the picker. It lists every custom emoji in the workspace, 20 per page, with a search box at the top. Press **Pick** to see a sticker full size, then **Send** to post it.
+
+If you already know roughly what it's called:
+
 ```
 /sticker party
 ```
 
-You get a preview that only you can see. From there you can:
+You get a preview that only you can see, with these buttons:
 
-- **Send** to post the sticker to the channel
-- **Next match** to see the next emoji whose name contains your search
-- **Cancel** to throw the preview away
-
-Other forms:
+- **Send** posts the sticker to the channel
+- **Next match** shows the next emoji that matches your search
+- **Browse all** opens the picker with your search filled in
+- **Cancel** throws the preview away
 
 | Command | What it does |
 | --- | --- |
-| `/sticker party` | Emoji whose name contains `party`, exact match first |
+| `/sticker` | Opens the picker |
+| `/sticker party` | Preview of the best match for `party` |
 | `/sticker :party-parrot:` | Same thing, the colons are optional |
-| `/sticker` | A random emoji, with a **Shuffle** button |
+| `/sticker random` | A random emoji, with a **Shuffle** button |
 | `/sticker help` | Usage and the number of custom emoji in the workspace |
+
+Search is forgiving. It ignores dashes and underscores, treats repeated letters as one (`steeven` finds `steveennn`) and allows a typo or two in longer names. Exact matches come first, then names that start with your search, then everything else.
 
 The posted sticker shows who sent it and the command they used, so people pick it up quickly.
 
 ## How it works
 
-There are three Vercel functions and no database.
+There are three Vercel functions and no database. Search lives in `lib/search.ts`.
 
-- `api/slack/command.ts` handles `/sticker`. It loads the custom emoji with `emoji.list`, keeps the list in memory for 5 minutes and replies with the preview.
-- `api/slack/interactions.ts` handles the buttons. Sending goes through the command's `response_url`, so the app does not need to be a member of the channel. It works in private channels and DMs too.
+- `api/slack/command.ts` handles `/sticker`. It loads the custom emoji with `emoji.list`, keeps the list in memory for 5 minutes and replies with a preview or opens the picker.
+- `api/slack/interactions.ts` handles the buttons and the picker. The picker is a modal that gets redrawn with `views.update` on every search, page change and pick. Sending goes through the command's `response_url`, so the app does not need to be a member of the channel. It works in private channels and DMs too.
 - `api/image.ts` downloads the emoji from `emoji.slack-edge.com` and resizes it with [sharp](https://sharp.pixelplumbing.com). It only accepts URLs from that host. Responses are cached as immutable, so each emoji is resized once and then served from the CDN.
 
 The app asks for two scopes: `commands` and `emoji:read`. It cannot read messages.
@@ -87,6 +93,7 @@ Run `/sticker help` in any channel to check that it works.
 
 ```sh
 npm install
+npm test
 npm run typecheck
 ```
 

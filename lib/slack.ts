@@ -50,15 +50,6 @@ export function normalizeQuery(text: string | null): string {
   return (text ?? "").trim().toLowerCase().replace(/^:+|:+$/g, "");
 }
 
-export function findMatches(query: string, names: string[]): string[] {
-  const sorted = [...names].sort();
-  if (!query) return sorted;
-  const exact = sorted.filter((name) => name === query);
-  const prefix = sorted.filter((name) => name !== query && name.startsWith(query));
-  const contains = sorted.filter((name) => !name.startsWith(query) && name.includes(query));
-  return [...exact, ...prefix, ...contains];
-}
-
 export function stickerImageUrl(emojiUrl: string): string {
   const host = process.env.VERCEL_PROJECT_PRODUCTION_URL;
   return `https://${host}/api/image?src=${encodeURIComponent(emojiUrl)}`;
@@ -71,4 +62,19 @@ export async function postToResponseUrl(responseUrl: string, payload: object): P
     body: JSON.stringify(payload),
   });
   if (!response.ok) throw new Error(`response_url failed: ${response.status} ${await response.text()}`);
+}
+
+export async function callSlack(method: string, body: object): Promise<void> {
+  const response = await fetch(`https://slack.com/api/${method}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.SLACK_BOT_TOKEN}`,
+      "content-type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify(body),
+  });
+  const data = (await response.json()) as { ok: boolean; error?: string; response_metadata?: { messages?: string[] } };
+  if (!data.ok) {
+    throw new Error(`${method} failed: ${data.error} ${data.response_metadata?.messages?.join("; ") ?? ""}`);
+  }
 }
