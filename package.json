@@ -1,5 +1,9 @@
 {
   "name": "slack-stickers",
+  "version": "1.0.0",
+  "description": "Post custom Slack emoji as big stickers with /sticker",
+  "license": "MIT",
+  "repository": "github:StefanB-Qadna/slack-stickers",
   "private": true,
   "type": "module",
   "scripts": {
